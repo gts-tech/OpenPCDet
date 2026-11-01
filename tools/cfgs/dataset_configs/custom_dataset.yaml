@@ -1,7 +1,13 @@
+# Custom Dataset config for the Waymo 3D smoke (10-frame probe).
+# Adapted from the stock OpenPCDet custom_dataset.yaml.
+# Grid aligned to cfgs/waymo_models/pointpillar_1x.yaml so the model cfg's
+# DATA_CONFIG override is a no-op and create_custom_infos (which reads THIS
+# file, not the model cfg) agrees with training.
 DATASET: 'CustomDataset'
-DATA_PATH: '../data/custom'
+DATA_PATH: '../data/custom'   # symlink -> /workspace/datasets/waymo/pcdet_custom
 
-POINT_CLOUD_RANGE: [-75.2, -75.2, -2, 75.2, 75.2, 4]
+# Pillar grid, matched to pointpillar_1x.yaml. VOXEL z = full z-range -> nz=1.
+POINT_CLOUD_RANGE: [-74.88, -74.88, -2, 74.88, 74.88, 4.0]
 
 MAP_CLASS_TO_KITTI: {
     'Vehicle': 'Car',
@@ -9,6 +15,9 @@ MAP_CLASS_TO_KITTI: {
     'Cyclist': 'Cyclist',
 }
 
+# SMOKE: val == train (throwaway, leaked number -- proves the loop runs only).
+# create_custom_infos reads ImageSets/train.txt AND val.txt, so val.txt must
+# exist; make it a copy of train.txt (see commands).
 DATA_SPLIT: {
     'train': train,
     'test': val
@@ -19,6 +28,7 @@ INFO_PATH: {
     'test': [custom_infos_val.pkl],
 }
 
+# 4 features (x, y, z, intensity) -> matches preprocessor_to_PCDet output.
 POINT_FEATURE_ENCODING: {
     encoding_type: absolute_coordinates_encoding,
     used_feature_list: ['x', 'y', 'z', 'intensity'],
@@ -26,7 +36,11 @@ POINT_FEATURE_ENCODING: {
 }
 
 DATA_AUGMENTOR:
-    DISABLE_AUG_LIST: ['placeholder']
+    # SMOKE: gt_sampling DISABLED. It needs a correct GT database + dbinfos and
+    # is the classic first-run failure point on a new/tiny custom dataset
+    # (empty or tiny DB from 10 frames, box-count mismatches). The smoke only
+    # needs loss to drop; re-enable for the real run.
+    DISABLE_AUG_LIST: ['gt_sampling']
     AUG_CONFIG_LIST:
         - NAME: gt_sampling
           USE_ROAD_PLANE: False
@@ -35,7 +49,6 @@ DATA_AUGMENTOR:
           PREPARE: {
              filter_by_min_points: ['Vehicle:5', 'Pedestrian:5', 'Cyclist:5'],
           }
-
           SAMPLE_GROUPS: ['Vehicle:20', 'Pedestrian:15', 'Cyclist:15']
           NUM_POINT_FEATURES: 4
           DATABASE_WITH_FAKELIDAR: False
@@ -61,9 +74,11 @@ DATA_PROCESSOR:
         'test': False
       }
 
+    # Matched to pointpillar_1x.yaml (the model cfg overrides this at train
+    # time anyway; kept identical so create_custom_infos agrees).
     - NAME: transform_points_to_voxels
-      VOXEL_SIZE: [0.1, 0.1, 0.15]
-      MAX_POINTS_PER_VOXEL: 5
+      VOXEL_SIZE: [0.32, 0.32, 6.0]
+      MAX_POINTS_PER_VOXEL: 20
       MAX_NUMBER_OF_VOXELS: {
         'train': 150000,
         'test': 150000
