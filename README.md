@@ -1,3 +1,72 @@
+<!-- ============================================================================ -->
+<!-- GTS Technology fork notes.                                                   -->
+<!-- The original OpenPCDet README is preserved verbatim below, under its          -->
+<!-- Apache-2.0 license. Do not remove upstream attribution, LICENSE or NOTICE.    -->
+<!-- ============================================================================ -->
+
+<img src="docs/assets/gts_logo.png" align="left" width="18%" alt="GTS Technology"/>
+
+# GTS OpenPCDet
+
+<br clear="left"/>
+
+A fork of [OpenPCDet](https://github.com/open-mmlab/OpenPCDet) maintained by **GTS Technology** (gts-tech.se).
+
+## Fork notes
+
+This fork adapts OpenPCDet for ongoing research and development in autonomous driving (AD)
+and road-safety technologies. It is developed within a master's research project at **UFBA**
+(Universidade Federal da Bahia) and sponsored by **GTS Technology**, which co-owns the resulting
+IP. GTS Technology releases these changes publicly as a contribution to open AD research.
+
+**Objectives**
+
+- Enable R&D with OpenPCDet on additional AD datasets, including **ZOD** (Zenseact Open Dataset) &mdash; *in progress*.
+- Enable use on modern NVIDIA hardware (**Blackwell, `sm_120`+**, e.g. the RTX 50-series): the 3D
+  evaluation path runs through a **numba-free AP metric**, since the stock KITTI-eval rotated-IoU
+  kernel (`numba.cuda`) does not build on `sm_120`.
+
+**What this fork changes so far**
+
+- **`custom_ap`** &mdash; a numba-free AP metric (BEV + 3D) wired into `CustomDataset.evaluation()`.
+  Rotated-box IoU is taken from OpenPCDet's own compiled CUDA op (not numba), so evaluation runs on
+  `sm_120`. Selected via `POST_PROCESSING.EVAL_METRIC: custom_ap`.
+- **`torch>=2.6`** compatibility fix (`weights_only` on checkpoint load).
+- An example Waymo-custom PointPillars config demonstrating the metric.
+
+**Scope**
+
+A research fork, provided **as-is**, with **no maintenance, support, or warranty**. Not affiliated
+with or endorsed by the OpenPCDet development team; for the toolbox itself, refer to the upstream
+project.
+
+**Contact** &mdash; `<contact@gts-tech.se>`
+
+## Citation
+
+If you use this fork, please cite the upstream OpenPCDet project (original citation preserved below).
+You may additionally reference this fork:
+
+```bibtex
+@misc{gts_openpcdet,
+    title        = {GTS OpenPCDet: an OpenPCDet fork for modern GPUs and additional AD datasets},
+    author       = {Souza Santos, Murilo and {GTS Technology}},
+    howpublished = {\url{https://github.com/<org>/OpenPCDet}},
+    note         = {Fork of OpenPCDet, commit <hash>},
+    year         = {2026}
+}
+```
+
+Upstream OpenPCDet remains the primary reference. For a citable, versioned artifact (recommended if
+cited in a dissertation), archive a tagged release on Zenodo and cite the resulting DOI.
+
+---
+
+> The original OpenPCDet README continues **unchanged** below.
+
+<!-- ============================================================================ -->
+
+
 <img src="docs/open_mmlab.png" align="right" width="30%">
 
 # OpenPCDet
@@ -286,6 +355,4 @@ If you find this project useful in your research, please consider cite:
 ```
 
 ## Contribution
-Welcome to be a member of the OpenPCDet development team by contributing to this repo, and feel free to contact us for any potential contributions. 
-
-
+Welcome to be a member of the OpenPCDet development team by contributing to this repo, and feel free to contact us for any potential contributions.
