@@ -4,11 +4,11 @@
 <!-- Apache-2.0 license. Do not remove upstream attribution, LICENSE or NOTICE.    -->
 <!-- ============================================================================ -->
 
-<img src="docs/assets/gts_logo.png" align="left" width="18%" alt="GTS Technology"/>
+<p align="left">
+  <img src="docs/assets/gts_logo_v2.png" width="150" alt="GTS Technology"/>
+</p>
 
 # GTS OpenPCDet
-
-<br clear="left"/>
 
 A fork of [OpenPCDet](https://github.com/open-mmlab/OpenPCDet) maintained by **GTS Technology** (gts-tech.se).
 
