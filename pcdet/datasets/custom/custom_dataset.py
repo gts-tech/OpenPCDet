@@ -134,6 +134,14 @@ class CustomDataset(DatasetTemplate):
 
         if kwargs['eval_metric'] == 'kitti':
             ap_result_str, ap_dict = kitti_eval(eval_det_annos, eval_gt_annos, self.map_class_to_kitti)
+        elif kwargs['eval_metric'] == 'custom_ap':
+            # numba-free AP: own matching/PR + rotated IoU from the compiled CUDA op
+            # (runs on sm_120, unlike the kitti rotate_iou numba kernel). See custom_ap_eval.py.
+            from .custom_ap_eval import evaluate_openpcdet
+            ap_result_str, ap_dict = evaluate_openpcdet(
+                eval_det_annos, eval_gt_annos, class_names,
+                iou_thresholds=self.dataset_cfg.get('CUSTOM_AP_IOU', None)
+            )
         else:
             raise NotImplementedError
 
